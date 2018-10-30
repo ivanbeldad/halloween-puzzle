@@ -12,17 +12,17 @@ class Piece extends Component {
       border,
       height,
       width,
-      positionVerticalOffset,
-      positionHorizontalOffset,
-      imageVerticalOffset,
-      imageHorizontalOffset,
+      posX,
+      posY,
+      imgX,
+      imgY,
     } = this.props;
     return (
       <div
         className={classes.root}
         style={{
-          top: positionVerticalOffset,
-          left: positionHorizontalOffset,
+          top: height * posY,
+          left: width * posX,
         }}
       >
         <div
@@ -32,8 +32,8 @@ class Piece extends Component {
             backgroundImage: `url(${image})`,
             height: height - border * 2,
             width: width - border * 2,
-            backgroundPositionY: imageVerticalOffset * -1,
-            backgroundPositionX: imageHorizontalOffset * -1,
+            backgroundPositionY: height * imgY * -1,
+            backgroundPositionX: width * imgX * -1,
           }}
         />
       </div>
@@ -46,11 +46,17 @@ Piece.propTypes = {
   image: PropTypes.string.isRequired,
   height: PropTypes.number,
   width: PropTypes.number,
+  posX: PropTypes.number.isRequired,
+  posY: PropTypes.number.isRequired,
+  imgX: PropTypes.number.isRequired,
+  imgY: PropTypes.number.isRequired,
+  border: PropTypes.number,
 };
 
 Piece.defaultProps = {
   height: null,
   width: null,
+  border: 1,
 };
 
 const styles = () => ({

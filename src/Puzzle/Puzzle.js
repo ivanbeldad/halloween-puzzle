@@ -23,25 +23,37 @@ class Puzzle extends Component {
     const { image, cols, rows } = this.props;
     const width = totalWidth / cols;
     const height = totalHeight / rows;
-    // original
     const pieces = [];
+    let positions = [];
+
     for (let y = 0; y < rows; y += 1) {
       for (let x = 0; x < cols; x += 1) {
-        console.log(totalWidth);
-        console.log(width * x);
+        positions.push({ x, y });
+      }
+    }
+
+    for (let y = 0; y < rows; y += 1) {
+      for (let x = 0; x < cols; x += 1) {
+        const randomPositionIndex = Math.floor(Math.random() * positions.length);
+        const randomPosition = positions[randomPositionIndex];
+        positions = [
+          ...positions.slice(0, randomPositionIndex),
+          ...positions.slice(randomPositionIndex + 1, positions.length),
+        ];
+
         pieces.push({
           key: `${y}${x}`,
           image,
           height,
           width,
-          positionVerticalOffset: height * y,
-          positionHorizontalOffset: width * x,
-          imageVerticalOffset: height * y,
-          imageHorizontalOffset: width * x,
+          posY: y,
+          posX: x,
+          imgX: randomPosition.x,
+          imgY: randomPosition.y,
+          border: 1,
         });
       }
     }
-    console.log(pieces);
     this.setState({ pieces });
   }
 
@@ -59,17 +71,7 @@ class Puzzle extends Component {
       <div className={classes.root} style={{ totalHeight, totalWidth }}>
         <img onLoad={this.onImageLoad} style={{ display: 'none' }} src={image} alt="puzzle" />
         {pieces.map(piece => (
-          <Piece
-            key={piece.key}
-            image={image}
-            height={piece.height}
-            width={piece.width}
-            positionVerticalOffset={piece.positionVerticalOffset}
-            positionHorizontalOffset={piece.positionHorizontalOffset}
-            imageVerticalOffset={piece.imageVerticalOffset}
-            imageHorizontalOffset={piece.imageHorizontalOffset}
-            border={1}
-          />
+          <Piece {...piece} />
         ))}
       </div>
     );
