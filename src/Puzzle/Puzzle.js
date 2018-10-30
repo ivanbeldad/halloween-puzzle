@@ -8,6 +8,7 @@ class Puzzle extends Component {
     pieces: [],
     totalWidth: null,
     totalHeight: null,
+    isDone: false,
   };
 
   onImageLoad = ({ target }) => {
@@ -57,6 +58,33 @@ class Puzzle extends Component {
     this.setState({ pieces });
   }
 
+  handleChange = ({
+    fromX, fromY, toX, toY,
+  }) => {
+    this.setState((prevState) => {
+      const { pieces } = prevState;
+      const from = pieces.find(piece => piece.imgX === fromX && piece.imgY === fromY);
+      const to = pieces.find(piece => piece.imgX === toX && piece.imgY === toY);
+      from.imgX = toX;
+      from.imgY = toY;
+      to.imgX = fromX;
+      to.imgY = fromY;
+      const isDone = this.isDone(pieces);
+      return { pieces, isDone };
+    });
+  }
+
+  isDone = (pieces) => {
+    const total = pieces.length;
+    let numberOfCorrect = 0;
+    pieces.forEach((piece) => {
+      if (piece.posX === piece.imgX && piece.posY === piece.imgY) {
+        numberOfCorrect += 1;
+      }
+    });
+    return total === numberOfCorrect;
+  }
+
   render() {
     const {
       classes,
@@ -67,12 +95,14 @@ class Puzzle extends Component {
       onSwap,
     } = this.props;
 
-    const { pieces, totalWidth, totalHeight } = this.state;
+    const {
+      pieces, totalWidth, totalHeight, isDone,
+    } = this.state;
     return (
       <div className={classes.root} style={{ totalHeight, totalWidth }}>
         <img onLoad={this.onImageLoad} style={{ display: 'none' }} src={image} alt="puzzle" />
         {pieces.map(piece => (
-          <Piece {...piece} />
+          <Piece {...piece} handleChange={this.handleChange} freeze={isDone} />
         ))}
       </div>
     );

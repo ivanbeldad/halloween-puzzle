@@ -10,8 +10,10 @@ const App = ({ classes }) => (
         <Puzzle
           className={classes.puzzle}
           image="https://storage.googleapis.com/rackian-cloud/halloween/hallowed_nights_loading_screen_low.png"
-          cols={14}
-          rows={8}
+          // cols={14}
+          // rows={8}
+          cols={2}
+          rows={2}
         />
       </section>
     </main>

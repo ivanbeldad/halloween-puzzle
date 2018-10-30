@@ -5,7 +5,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-const MyApp = DragDropContext(HTML5Backend)(App)
+const MyApp = DragDropContext(HTML5Backend)(App);
 
 ReactDOM.render(<MyApp />, document.getElementById('root'));
 

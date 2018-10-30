@@ -1,80 +1,76 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core';
-import {
-  DragSource,
-  DropTarget,
-  DragSourceSpec,
-  DragSourceMonitor,
-  DropTargetSpec,
-  DropTargetMonitor,
-} from 'react-dnd';
+import { DragSource, DropTarget } from 'react-dnd';
 
-class Piece extends Component {
-  state = {
-    droppable: true,
-  };
+const Piece = (props) => {
+  const {
+    classes,
+    image,
+    border,
+    height,
+    width,
+    posX,
+    posY,
+    imgX,
+    imgY,
+    handleChange,
+    connectDragSource,
+    connectDropTarget,
+    isDragging,
+    isOver,
+    didDrop,
+    draggedItem,
+    droppedItem,
+    freeze,
+  } = props;
 
-  render() {
-    const {
-      classes,
-      image,
-      border,
-      height,
-      width,
-      posX,
-      posY,
-      imgX,
-      imgY,
-      connectDragSource,
-      connectDropTarget,
-      isDragging,
-      isOver,
-      didDrop,
-      draggedItem,
-      droppedItem,
-    } = this.props;
+  const opacity = isDragging ? 0.5 : 1;
+  const hoverOpacity = isOver ? 0.3 : 0;
 
-    const isNotTheSame = draggedItem.posX !== droppedItem.posX || draggedItem.posY !== droppedItem.posY;
-    const opacity = isDragging ? 0.5 : 1;
-    const hoverOpacity = isOver && isNotTheSame ? 0.3 : 0;
+  const shouldHandleChange = didDrop && isDragging
+      && draggedItem.imgX === imgX
+      && draggedItem.imgY === imgY
+      && (draggedItem.imgX !== droppedItem.imgX || draggedItem.imgY !== droppedItem.imgY);
+  if (shouldHandleChange) {
+    handleChange({
+      fromX: draggedItem.imgX,
+      fromY: draggedItem.imgY,
+      toX: droppedItem.imgX,
+      toY: droppedItem.imgY,
+    });
+  }
 
-    const shouldHandleChange = didDrop
-      && draggedItem.posX === posX
-      && draggedItem.posY === posY
-      && (draggedItem.posX !== droppedItem.posX || draggedItem.posY !== droppedItem.posY);
-    if (shouldHandleChange) {
-      console.log(`From ${draggedItem.posX} ${draggedItem.posY} - To ${droppedItem.posX} ${droppedItem.posY}`);
-    }
-
-    const jsx = (
+  const jsx = (
+    <div
+      className={classes.root}
+      style={{
+        top: height * posY,
+        left: width * posX,
+        opacity,
+      }}
+    >
       <div
-        className={classes.root}
+        className={classes.image}
         style={{
-          top: height * posY,
-          left: width * posX,
-          opacity,
+          border: freeze ? 0 : `${border}px solid rgba(255,255,255,0.5)`,
+          backgroundImage: `url(${image})`,
+          height: freeze ? height : height - border * 2,
+          width: freeze ? width : width - border * 2,
+          backgroundPositionY: height * imgY * -1,
+          backgroundPositionX: width * imgX * -1,
+          opacity: freeze && 1,
         }}
       >
-        <div
-          className={classes.image}
-          style={{
-            border: `${border}px solid rgba(255,255,255,0.5)`,
-            backgroundImage: `url(${image})`,
-            height: height - border * 2,
-            width: width - border * 2,
-            backgroundPositionY: height * imgY * -1,
-            backgroundPositionX: width * imgX * -1,
-          }}
-        >
-          <div className={classes.hover} style={{ opacity: hoverOpacity }} />
-        </div>
+        <div className={classes.hover} style={{ opacity: hoverOpacity }} />
       </div>
-    );
+    </div>
+  );
 
-    return connectDragSource(connectDropTarget(jsx));
-  }
-}
+  if (freeze) return jsx;
+
+  return connectDragSource(connectDropTarget(jsx));
+};
 
 Piece.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -94,6 +90,7 @@ Piece.defaultProps = {
   border: 1,
   draggedItem: {},
   droppedItem: {},
+  freeze: false,
 };
 
 const styles = () => ({
@@ -102,8 +99,9 @@ const styles = () => ({
     background: '#fff',
   },
   image: {
+    opacity: 0.9,
     '&:hover': {
-      opacity: 0.9,
+      opacity: 0.8,
     },
     '&::before': {
       content: '""',
@@ -116,18 +114,10 @@ const styles = () => ({
   },
 });
 
-/**
- * @type {DragSourceSpec}
- */
 const dragSpec = {
   beginDrag: props => props,
 };
 
-/**
- *
- * @param {*} connect
- * @param {DragSourceMonitor} monitor
- */
 const dragCollect = (connect, monitor) => ({
   connectDragSource: connect.dragSource(),
   isDragging: monitor.isDragging(),
@@ -136,21 +126,18 @@ const dragCollect = (connect, monitor) => ({
   droppedItem: monitor.getDropResult() || {},
 });
 
-/**
- * @type {DropTargetSpec}
- */
 const dropSpec = {
   drop: props => props,
+  canDrop: (props, monitor) => {
+    const item = monitor.getItem();
+    return props.posX !== item.posX || props.posY !== item.posY;
+  },
 };
 
-/**
- *
- * @param {*} connect
- * @param {DropTargetMonitor} monitor
- */
 const dropCollect = (connect, monitor) => ({
   connectDropTarget: connect.dropTarget(),
   isOver: monitor.isOver(),
+  canDrop: monitor.canDrop(),
 });
 
 const StyledPiece = withStyles(styles)(Piece);
