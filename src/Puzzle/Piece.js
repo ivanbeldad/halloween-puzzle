@@ -13,6 +13,8 @@ const Piece = (props) => {
     posY,
     imgX,
     imgY,
+    cols,
+    rows,
     handleChange,
     connectDragSource,
     connectDropTarget,
@@ -26,6 +28,12 @@ const Piece = (props) => {
 
   const opacity = isDragging ? 0.5 : 1;
   const hoverOpacity = isOver ? 0.3 : 0;
+
+  let borderRadius = '';
+  if (imgX === 0 && imgY === 0) borderRadius = '16px 0 0 0';
+  else if (imgX === cols - 1 && imgY === rows - 1) borderRadius = '0 0 16px 0';
+  else if (imgX === 0 && imgY === rows - 1) borderRadius = '0 0 0 16px';
+  else if (imgX === cols - 1 && imgY === 0) borderRadius = '0 16px 0 0';
 
   const shouldHandleChange = didDrop && isDragging
       && draggedItem.imgX === imgX
@@ -59,6 +67,7 @@ const Piece = (props) => {
           opacity: freeze && 1,
           marginRight: -1,
           border: freeze ? 0 : '1px solid rgba(0, 0, 0, 1)',
+          borderRadius,
         }}
       >
         <div className={classes.hover} style={{ opacity: hoverOpacity }} />

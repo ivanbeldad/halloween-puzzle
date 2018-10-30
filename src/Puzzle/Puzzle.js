@@ -84,7 +84,10 @@ class Puzzle extends Component {
         numberOfCorrect += 1;
       }
     });
-    return total === numberOfCorrect;
+    const { onFinished } = this.props;
+    const isDone = total === numberOfCorrect;
+    if (isDone) onFinished();
+    return isDone;
   }
 
   render() {
