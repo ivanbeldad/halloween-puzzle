@@ -10,7 +10,7 @@ class App extends Component {
           <section>
             <Puzzle
               image="https://storage.googleapis.com/rackian-cloud/halloween/hallowed_nights_loading_screen.png"
-              cols={5}
+              cols={9}
               rows={5}
             />
           </section>
