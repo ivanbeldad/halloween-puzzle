@@ -66,6 +66,7 @@ class Puzzle extends Component {
       onFinish,
       onSwap,
     } = this.props;
+
     const { pieces, totalWidth, totalHeight } = this.state;
     return (
       <div className={classes.root} style={{ totalHeight, totalWidth }}>
@@ -92,11 +93,11 @@ Puzzle.defaultProps = {
   onSwap: () => {},
 };
 
-const styles = theme => ({
+const styles = () => ({
   root: {
     background: '#023',
     position: 'relative',
   },
 });
 
-export default withStyles(styles)(Puzzle);
+export default (withStyles(styles)(Puzzle));

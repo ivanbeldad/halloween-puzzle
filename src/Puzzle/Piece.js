@@ -1,9 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core';
+import {
+  DragSource,
+  DropTarget,
+  DragSourceSpec,
+  DragSourceMonitor,
+  DropTargetSpec,
+  DropTargetMonitor,
+} from 'react-dnd';
 
 class Piece extends Component {
-  state = {};
+  state = {
+    droppable: true,
+  };
 
   render() {
     const {
@@ -16,13 +26,34 @@ class Piece extends Component {
       posY,
       imgX,
       imgY,
+      connectDragSource,
+      connectDropTarget,
+      isDragging,
+      isOver,
+      didDrop,
+      draggedItem,
+      droppedItem,
     } = this.props;
-    return (
+
+    const isNotTheSame = draggedItem.posX !== droppedItem.posX || draggedItem.posY !== droppedItem.posY;
+    const opacity = isDragging ? 0.5 : 1;
+    const hoverOpacity = isOver && isNotTheSame ? 0.3 : 0;
+
+    const shouldHandleChange = didDrop
+      && draggedItem.posX === posX
+      && draggedItem.posY === posY
+      && (draggedItem.posX !== droppedItem.posX || draggedItem.posY !== droppedItem.posY);
+    if (shouldHandleChange) {
+      console.log(`From ${draggedItem.posX} ${draggedItem.posY} - To ${droppedItem.posX} ${droppedItem.posY}`);
+    }
+
+    const jsx = (
       <div
         className={classes.root}
         style={{
           top: height * posY,
           left: width * posX,
+          opacity,
         }}
       >
         <div
@@ -35,9 +66,13 @@ class Piece extends Component {
             backgroundPositionY: height * imgY * -1,
             backgroundPositionX: width * imgX * -1,
           }}
-        />
+        >
+          <div className={classes.hover} style={{ opacity: hoverOpacity }} />
+        </div>
       </div>
     );
+
+    return connectDragSource(connectDropTarget(jsx));
   }
 }
 
@@ -57,6 +92,8 @@ Piece.defaultProps = {
   height: null,
   width: null,
   border: 1,
+  draggedItem: {},
+  droppedItem: {},
 };
 
 const styles = () => ({
@@ -72,6 +109,52 @@ const styles = () => ({
       content: '""',
     },
   },
+  hover: {
+    width: '100%',
+    height: '100%',
+    background: '#ffff6b',
+  },
 });
 
-export default withStyles(styles)(Piece);
+/**
+ * @type {DragSourceSpec}
+ */
+const dragSpec = {
+  beginDrag: props => props,
+};
+
+/**
+ *
+ * @param {*} connect
+ * @param {DragSourceMonitor} monitor
+ */
+const dragCollect = (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+  didDrop: monitor.didDrop(),
+  draggedItem: monitor.getItem() || {},
+  droppedItem: monitor.getDropResult() || {},
+});
+
+/**
+ * @type {DropTargetSpec}
+ */
+const dropSpec = {
+  drop: props => props,
+};
+
+/**
+ *
+ * @param {*} connect
+ * @param {DropTargetMonitor} monitor
+ */
+const dropCollect = (connect, monitor) => ({
+  connectDropTarget: connect.dropTarget(),
+  isOver: monitor.isOver(),
+});
+
+const StyledPiece = withStyles(styles)(Piece);
+const DragStyledPiece = DragSource('piece', dragSpec, dragCollect)(StyledPiece);
+const DragAndDropStyledPiece = DropTarget('piece', dropSpec, dropCollect)(DragStyledPiece);
+
+export default DragAndDropStyledPiece;
