@@ -52,6 +52,8 @@ class Puzzle extends Component {
           imgX: randomPosition.x,
           imgY: randomPosition.y,
           border: 1,
+          cols,
+          rows,
         });
       }
     }
@@ -89,21 +91,30 @@ class Puzzle extends Component {
     const {
       classes,
       image,
-      cols,
-      rows,
-      onFinish,
-      onSwap,
     } = this.props;
 
     const {
       pieces, totalWidth, totalHeight, isDone,
     } = this.state;
+
     return (
       <div className={classes.root} style={{ totalHeight, totalWidth }}>
-        <img onLoad={this.onImageLoad} style={{ display: 'none' }} src={image} alt="puzzle" />
-        {pieces.map(piece => (
-          <Piece {...piece} handleChange={this.handleChange} freeze={isDone} />
-        ))}
+        <img onLoad={this.onImageLoad} style={{ display: isDone ? 'inherit' : 'none' }} src={image} alt="puzzle" />
+        {!isDone && (
+        <table className={classes.table} cellSpacing={0} cellPadding={0}>
+          <tbody>
+            {pieces.reduce((prev, current) => {
+              if (!prev[current.posY]) prev[current.posY] = [];
+              prev[current.posY].push(current);
+              return prev;
+            }, []).map((row, i) => (
+              <tr key={i}>
+                {row.map(piece => <td key={piece.key}><Piece {...piece} handleChange={this.handleChange} freeze={isDone} /></td>)}
+              </tr>))
+          }
+          </tbody>
+        </table>
+        )}
       </div>
     );
   }
@@ -125,8 +136,12 @@ Puzzle.defaultProps = {
 
 const styles = () => ({
   root: {
-    background: '#023',
+    background: '#000',
     position: 'relative',
+  },
+  table: {
+    borderCollapse: 'collapse',
+    marginBottom: 50,
   },
 });
 

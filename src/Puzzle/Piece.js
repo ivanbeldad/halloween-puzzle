@@ -7,7 +7,6 @@ const Piece = (props) => {
   const {
     classes,
     image,
-    border,
     height,
     width,
     posX,
@@ -40,7 +39,6 @@ const Piece = (props) => {
       toY: droppedItem.imgY,
     });
   }
-
   const jsx = (
     <div
       className={classes.root}
@@ -53,13 +51,14 @@ const Piece = (props) => {
       <div
         className={classes.image}
         style={{
-          border: freeze ? 0 : `${border}px solid rgba(255,255,255,0.5)`,
           backgroundImage: `url(${image})`,
-          height: freeze ? height : height - border * 2,
-          width: freeze ? width : width - border * 2,
+          height,
+          width,
           backgroundPositionY: height * imgY * -1,
           backgroundPositionX: width * imgX * -1,
           opacity: freeze && 1,
+          marginRight: -1,
+          border: freeze ? 0 : '1px solid rgba(0, 0, 0, 1)',
         }}
       >
         <div className={classes.hover} style={{ opacity: hoverOpacity }} />
@@ -95,7 +94,6 @@ Piece.defaultProps = {
 
 const styles = () => ({
   root: {
-    position: 'absolute',
     background: '#fff',
   },
   image: {
